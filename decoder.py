@@ -28,9 +28,14 @@ def get_frequency(signal, sample_rate):
 
     slicing_min = int(win_freq_min/freq[-1]*freq.shape[0])
     slicing_max = int(win_freq_max/freq[-1]*freq.shape[0])
-
-    freq_max = freq[slicing_min +
-                    np.argmax(signal_ffted[slicing_min:slicing_max])]
+    
+    index_max = slicing_min + np.argmax(signal_ffted[slicing_min:slicing_max])
+    freq_max = freq[index_max]
+    value_max = signal_ffted[index_max]
+    if value_max < 500_000:
+        return None
+    # print(f"value_max {signal_ffted[index_max]}")
+    # print(f"value_acote {signal_ffted[index_max+1000]}")
     
     # plt.plot(freq[slicing_min:slicing_max], signal_ffted[slicing_min:slicing_max])
     # plt.yscale("log")
@@ -63,9 +68,9 @@ def decode_singles():
         print(f"[{id}]\tExpected: {expected}, guess: {guess}, freq_max: {freq}")
 
 def decode_serie():
-    sample_rate, signal = read("mot3.wav")
+    # sample_rate, signal = read("mot3.wav")
     # sample_rate, signal = read("mess_ssespace.wav")
-    # sample_rate, signal = read("mess.wav")
+    sample_rate, signal = read("mess.wav")
     # sample_rate, signal = read("mess_difficile.wav")
     signal_length = signal.shape[0]
     symbol_length = 2000
@@ -82,6 +87,9 @@ def decode_serie():
             print(" ", end='')
             continue
         freq = get_frequency(signal, sample_rate)
+        if freq is None:
+            print(" ", end='')
+            continue
         guess = frequency_to_letter(freq)
         print(guess, end='')
 
